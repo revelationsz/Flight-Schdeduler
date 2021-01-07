@@ -1,7 +1,3 @@
-/**
- * Assignment #3: Strings, structs, pointers, command-line arguments.
- *  Let's use our knowledge to write a simple flight management system!
- **/
 
 #include <stdio.h>
 #include <string.h>
@@ -20,9 +16,7 @@
 #define TIME_NULL -1
 
 
-/******************************************************************************
- * Structure and Type definitions                                             *
- ******************************************************************************/
+
 typedef int time_t;                        // integers used for time values
 typedef char city_t[MAX_CITY_NAME_LEN+1];; // null terminate fixed length city
  
@@ -49,18 +43,14 @@ struct flight_schedule {
   struct flight_schedule *prev;                // link list prev pointer
 };
 
-/******************************************************************************
- * Global / External variables                                                *
- ******************************************************************************/
+
 // This program uses two global linked lists of Schedules.  See comments
 // of struct flight_schedule above for details
 struct flight_schedule *flight_schedules_free = NULL;
 struct flight_schedule *flight_schedules_active = NULL;
 
 
-/******************************************************************************
- * Function Prototypes                                                        *
- ******************************************************************************/
+
 // Misc utility io functions
 int city_read(city_t city);           
 bool time_get(time_t *time_ptr);      
@@ -103,22 +93,14 @@ int main(int argc, char *argv[])
     }
   }
 
-  // C99 lets us allocate an array of a fixed length as a local 
-  // variable.  Since we are doing this in main and a call to main will be 
-  // active for the entire time of the program's execution this
-  // array will be alive for the entire time -- its memory and values
-  // will be stable for the entire program execution.
+  
   struct flight_schedule flight_schedules[n];
  
   // Initialize our global lists of free and active schedules using
   // the elements of the flight_schedules array
   flight_schedule_initialize(flight_schedules, n);
 
-  // DEFENSIVE PROGRAMMING:  Write code that avoids bad things from happening.
-  //  When possible, if we know that some particular thing should have happened
-  //  we think of that as an assertion and write code to test them.
-  // Use the assert function (CPAMA p749) to be sure the initilization has set
-  // the free list to a non-null value and the the active list is a null value.
+ 
   assert(flight_schedules_free != NULL && flight_schedules_active == NULL);
 
   // Print the instruction in the beginning
@@ -184,9 +166,9 @@ int main(int argc, char *argv[])
   return EXIT_SUCCESS;
 }
 
-/**********************************************************************
- * city_read: Takes in and processes a given city following a command *
- *********************************************************************/
+
+ // city_read: Takes in and processes a given city following a command 
+
 int city_read(city_t city) {
   int ch, i=0;
 
@@ -208,9 +190,8 @@ int city_read(city_t city) {
 }
 
 
-/****************************************************************
- * Message functions so that your messages match what we expect *
- ****************************************************************/
+// Message functions so that your messages match what we expect
+
 void msg_city_bad(char *city) {
   printf("No schedule for %s\n", city);
 }
@@ -282,9 +263,9 @@ void print_command_help()
 }
 
 
-/****************************************************************
- * Resets a flight schedule                                     *
- ****************************************************************/
+
+//Resets a flight schedule                                 
+
 void flight_schedule_reset(struct flight_schedule *fs) {
     fs->destination[0] = 0;
     for (int i=0; i<MAX_FLIGHTS_PER_CITY; i++) {
@@ -296,10 +277,10 @@ void flight_schedule_reset(struct flight_schedule *fs) {
     fs->prev = NULL;
 }
 
-/******************************************************************
-* Initializes the flight_schedule array that will hold any flight *
-* schedules created by the user. This is called in main for you.  *
- *****************************************************************/
+
+/*Initializes the flight_schedule array that will hold any flight 
+schedules created by the user. This is called in main for you. */ 
+ 
 
 void flight_schedule_initialize(struct flight_schedule array[], int n)
 {
@@ -336,8 +317,8 @@ void flight_schedule_initialize(struct flight_schedule array[], int n)
   flight_schedules_free = &array[0];
 }
 
-/***********************************************************
- * time_get: read a time from the user
+/*
+   time_get: read a time from the user
    Time in this program is a minute number 0-((24*60)-1)=1439
    -1 is used to indicate the NULL empty time 
    This function should read in a time value and check its 
@@ -345,7 +326,7 @@ void flight_schedule_initialize(struct flight_schedule array[], int n)
    It should print "Invalid Time" and return false.
    othewise it should return the value in the integer pointed
    to by time_ptr.
- ***********************************************************/
+*/
 bool time_get(int *time_ptr) {
   if (scanf("%d", time_ptr)==1) {
     return (TIME_NULL == *time_ptr || 
@@ -355,13 +336,12 @@ bool time_get(int *time_ptr) {
   return false;
 }
 
-/***********************************************************
- * flight_capacity_get: read the capacity of a flight from the user
+/* flight_capacity_get: read the capacity of a flight from the user
    This function should read in a capacity value and check its 
    validity.  If it is not greater than 0, it should print 
    "Invalid capacity value" and return false. Othewise it should 
    return the value in the integer pointed to by cap_ptr.
- ***********************************************************/
+*/
 bool flight_capacity_get(int *cap_ptr) {
   if (scanf("%d", cap_ptr)==1) {
     return *cap_ptr > 0;
@@ -384,26 +364,27 @@ int flight_compare_time(const void *a, const void *b)
   return (af->time - bf->time);
 }
 
-//WRITE SOME CODE!
 
-
-struct flight_schedule * flight_schedule_allocate(void){
-   if (flight_schedules_free == NULL) {
+struct flight_schedule * flight_schedule_allocate(void){ //helper function takes flight schedule off of free and places it in active list
+   if (flight_schedules_free == NULL) { //checks if free list is null
     msg_schedule_no_free();
     return flight_schedules_free;
-  } else if (flight_schedules_free->next == NULL) { // 1 last nodes in free
-    flight_schedules_active->prev = flight_schedules_free;
-    flight_schedules_free->next = flight_schedules_active;
+	   
+  } else if (flight_schedules_free->next == NULL) { // case if 1 last nodes in free
+    flight_schedules_active->prev = flight_schedules_free; 
+    flight_schedules_free->next = flight_schedules_active; 
     flight_schedules_active = flight_schedules_free;
     flight_schedules_free = NULL;
     return flight_schedules_active;
-  } else if (flight_schedules_active == NULL){ //active is empty
+	   
+  } else if (flight_schedules_active == NULL){ //case if active is empty
     flight_schedules_active = flight_schedules_free;
     flight_schedules_free = flight_schedules_free->next;
     flight_schedules_free->prev = NULL;
     flight_schedules_active->next = NULL;
     return flight_schedules_active;
-  } else { //regular 
+	   
+  } else { //if nether fothe previous cases are true run base case 
     struct flight_schedule *p1 = flight_schedules_active;
     flight_schedules_active->prev = flight_schedules_free;
     flight_schedules_active = flight_schedules_free;
@@ -414,12 +395,13 @@ struct flight_schedule * flight_schedule_allocate(void){
   } 
 }
 
-void flight_schedule_free(struct flight_schedule *p1 ){
-    if(p1->next == NULL){ 
+void flight_schedule_free(struct flight_schedule *p1 ){// helper function takes a pointer to a node from the activel list and places it on the 
+	//free list cleared
+    if(p1->next == NULL){ // checks if p1 is at end of list
       if(p1->prev == NULL){ // If there is only one node in active flights
-      if (flight_schedules_free != NULL) {
-        p1->next = flight_schedules_free;
-        p1->next->prev = p1;
+      if (flight_schedules_free != NULL) { //checks if free list is not empty
+        p1->next = flight_schedules_free; 
+        p1->next->prev = p1; 
       } else {
         p1->next = NULL;
       }
@@ -428,7 +410,7 @@ void flight_schedule_free(struct flight_schedule *p1 ){
       }
       else{ // If node is at the end of active flights
         p1->prev->next = NULL;
-        if (flight_schedules_free != NULL){
+        if (flight_schedules_free != NULL){ //checks if free list is not empty
         p1->next = flight_schedules_free;
         p1->next->prev = p1;
         } else {
@@ -438,10 +420,10 @@ void flight_schedule_free(struct flight_schedule *p1 ){
         flight_schedules_free = p1;
       }
     } else { // node at font of list
-      if (p1->prev == NULL){
+      if (p1->prev == NULL){ //if node at font of list
         flight_schedules_active = p1->next;
         p1->next->prev = NULL;
-        if (flight_schedules_free != NULL){
+        if (flight_schedules_free != NULL){ //checks if free list is not empty
           p1->next = flight_schedules_free;
           p1->next->prev = p1;
         } else {
@@ -453,7 +435,7 @@ void flight_schedule_free(struct flight_schedule *p1 ){
     else { //node somewhere in middle
       p1->prev->next = p1->next;
       p1->next->prev = p1->prev;
-      if (flight_schedules_free != NULL) {
+      if (flight_schedules_free != NULL) { //checks if free list is not empty
       p1->next = flight_schedules_free;
       p1->next->prev = p1;
       } else {
@@ -468,54 +450,54 @@ void flight_schedule_free(struct flight_schedule *p1 ){
 
 
 
-void flight_schedule_add(city_t city){
-    struct flight_schedule *p2 = flight_schedule_find(city);
+void flight_schedule_add(city_t city){ //adds flight to active list
+    struct flight_schedule *p2 = flight_schedule_find(city); //finds city 
     if (p2 == NULL){
-      struct flight_schedule *new = flight_schedule_allocate();
+      struct flight_schedule *new = flight_schedule_allocate(); //makes a new struct/node and inatlizes it with allocate function
       if( new != NULL){
-      strcpy(new->destination, city);   
+      strcpy(new->destination, city);  //fills in city in new struct
       }
-    } else {
+    } else { //error if city already exists 
       msg_city_exists(city);
     }
 }
 
-void flight_schedule_remove(city_t city){
-    struct flight_schedule *p1 = flight_schedule_find(city);
+void flight_schedule_remove(city_t city){ //removes city and its flights from the active list
+    struct flight_schedule *p1 = flight_schedule_find(city); //finds city
 
      if(p1 != NULL){
-       flight_schedule_free(p1);
+       flight_schedule_free(p1);//calls helper function to free the city and take it off the active list
        return;
-     } else {
+     } else { //error if city no in active list
        msg_city_bad(city);
      }
 }
 
 
-void flight_schedule_listAll(void){
-    struct flight_schedule *p1 = flight_schedules_active;
+void flight_schedule_listAll(void){//lists all flights and destinations 
+    struct flight_schedule *p1 = flight_schedules_active; //makes new pointer node that points to beginning of activel list to cycle thorugh it
 
-    while(p1 != NULL){
+    while(p1 != NULL){ //cycles through list until the end
       printf("%s\n", p1->destination);
       p1=p1->next;
     }
 
 }
 
-void flight_schedule_list(city_t city){
-    struct flight_schedule *p1 = flight_schedule_find(city);
+void flight_schedule_list(city_t city){//lists all flights for a desination
+    struct flight_schedule *p1 = flight_schedule_find(city); //pointer node to point to city
     char *cityc = p1->destination;
     
     struct flight *test = p1->flights;
 
-    if (p1 == NULL) {
+    if (p1 == NULL) { //checks if there is an error and there is not city 
       msg_city_bad(city);
       return;
     }
     
     msg_city_flights(cityc);
-    for(int i = 0; i < MAX_FLIGHTS_PER_CITY; i++){
-      if (p1->flights[i].time != TIME_NULL || p1->flights[i].available != 0 || p1->flights[i].capacity != 0) {
+    for(int i = 0; i < MAX_FLIGHTS_PER_CITY; i++){ //loops through and lists flight info if its there
+      if (p1->flights[i].time != TIME_NULL || p1->flights[i].available != 0 || p1->flights[i].capacity != 0) { //checks if fligts info is not null
           msg_flight_info(p1->flights[i].time, p1->flights[i].available, p1->flights[i].capacity);
       }
       
@@ -526,21 +508,22 @@ void flight_schedule_list(city_t city){
     
 }
 
-void flight_schedule_add_flight(city_t city){
-     struct flight_schedule *p1 = flight_schedule_find(city);
-    if(p1 == NULL){
+void flight_schedule_add_flight(city_t city){//adds a flight to a city
+     struct flight_schedule *p1 = flight_schedule_find(city); //pointer node that points to city
+    if(p1 == NULL){ //checks for error
       msg_city_bad(city);
       return;
     }
-     time_t time;
+     time_t time;  //inatlizes all vars for flight info
      int capacity;
      bool a = time_get(&time);
      bool you = flight_capacity_get(&capacity);
 
      if (a == false ||you == false) return; 
 
-    for(int i=0; i < MAX_FLIGHTS_PER_CITY; i++){
+    for(int i=0; i < MAX_FLIGHTS_PER_CITY; i++){ //loops though all flighs for the city
        if(p1->flights[i].capacity == 0 && p1->flights[i].time == TIME_NULL && p1->flights[i].available ==0){//checks if flight is already used or not
+	       //gives a time, capacity and availablilty to flight
          p1->flights[i].time = time;
          p1->flights[i].capacity = capacity;
          p1->flights[i].available = p1->flights[i].capacity;
@@ -548,91 +531,91 @@ void flight_schedule_add_flight(city_t city){
          return;
        }
      }
-     msg_city_max_flights_reached(city);
+     msg_city_max_flights_reached(city); //show message if all flights are filled up
 }
 
-void flight_schedule_remove_flight(city_t city){
-    struct flight_schedule *p1 = flight_schedule_find(city);
-    if(p1 == NULL){
+void flight_schedule_remove_flight(city_t city){//removes a flight ofr a certain city
+    struct flight_schedule *p1 = flight_schedule_find(city);//pointer node that points to city
+    if(p1 == NULL){//error message if city does not exist
       msg_city_bad(city);
       return;
     }
-    time_t time;
-    bool test = time_get(&time);
+    time_t time; //initalizes time var
+    bool test = time_get(&time); //initalizes bool to check time
     if (test == false) {
       return;
     }
-    struct flight *t;
+    struct flight *t; //new pointer node for cities flights
     t = p1->flights;
 
-    for(int i = 0; i < MAX_FLIGHTS_PER_CITY; i++){
-      if(time == t[i].time){
+    for(int i = 0; i < MAX_FLIGHTS_PER_CITY; i++){//cycles through flights
+      if(time == t[i].time){ //checks if we have the matching time and then sets all info to 0
         t[i].time = TIME_NULL;
         t[i].capacity = 0;
         t[i].available = 0;
         return;
       }
     }
-    msg_flight_bad_time();
+    msg_flight_bad_time();//if it does not return show error message
 }
 
-void flight_schedule_schedule_seat(city_t city){
-    struct flight_schedule *p1 = flight_schedule_find(city);
-    if(p1 == NULL){
+void flight_schedule_schedule_seat(city_t city){ //schedules a set for a specfies city and time
+    struct flight_schedule *p1 = flight_schedule_find(city); //pointer node that points to city
+    if(p1 == NULL){//error message if city does not exist
       msg_city_bad(city);
       return;
     }
-    time_t time;
-    bool test = time_get(&time);
+    time_t time; //initalizes time var
+    bool test = time_get(&time); //initalizes bool to check time
     if (test == false) {
       return;
     }
-    struct flight *t;
+    struct flight *t; //new pointer node for cities flights
     t = p1->flights;
    
-    for(int i = 0; i < MAX_FLIGHTS_PER_CITY; i++){
-      if(time <= t[i].time && t[i].available != 0 ){       
-        t[i].available -= 1;
+    for(int i = 0; i < MAX_FLIGHTS_PER_CITY; i++){ //cycles through flights
+      if(time <= t[i].time && t[i].available != 0 ){ //checks if ther is any avalibilty in the fight and if so takes one availbality from the flight
+        t[i].available -= 1; 
         return;
       }
     }
-    msg_flight_no_seats();
+    msg_flight_no_seats(); //message that plays if there is no more seat avalable 
 }
 
-void flight_schedule_unschedule_seat(city_t city){
-    struct flight_schedule *p1 = flight_schedule_find(city);
-    if(p1 == NULL){
+void flight_schedule_unschedule_seat(city_t city){ //unschedules a seat from a flight
+    struct flight_schedule *p1 = flight_schedule_find(city); //pointer node that points to city
+    if(p1 == NULL){ //error message if city does not exist
       msg_city_bad(city);
       return;
     }
-    time_t time;
-    bool test = time_get(&time);
+    time_t time; //initalizes time var
+    bool test = time_get(&time); //initalizes bool to check time
     if (test == false) {
       return;
     }
-    struct flight *t;
+    struct flight *t; //new pointer node for cities flights
     t = p1->flights;
 
-    for(int i = 0; i < MAX_FLIGHTS_PER_CITY; i++){
-      if(time == t[i].time && t[i].available != t[i].capacity){       
+    for(int i = 0; i < MAX_FLIGHTS_PER_CITY; i++){ //cycles through flights
+      if(time == t[i].time && t[i].available != t[i].capacity){ //checks if its is the correct flight and if there are any seats avalable then adds 1 to the avalablity
         t[i].available += 1;
         return;
       } else {
-        if (time == t[i].time && t[i].available == t[i].capacity){
+        if (time == t[i].time && t[i].available == t[i].capacity){ //checks if it is the correct flight and if it is full, if so send message that flight is full
           msg_flight_all_seats_empty();
           return;
         }
       }
     }
-    msg_flight_bad_time();
+    msg_flight_bad_time();//message plays when there are not flights at a certain time
 }
 
 
 
 struct flight_schedule * flight_schedule_find(city_t city){
-    struct flight_schedule *p1 = flight_schedules_active;
+    struct flight_schedule *p1 = flight_schedules_active; //pointer to beginning of active lisst
     
-    while(p1 != NULL){
+    while(p1 != NULL){ //cycles through active list unitl we find city we are looking for
       if (strcmp(p1->destination, city) == 0) break;
       p1=p1->next;  
     }
